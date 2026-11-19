@@ -38,7 +38,6 @@ public final class FolderPickerScreen extends Screen {
     @Override
     protected void init() {
         layout.setHeaderHeight(40);
-        layout.addTitleHeader(title, font);
 
         LinearLayout content = LinearLayout.vertical().spacing(4);
         content.addChild(option(Component.translatable("showserverlist.folder.picker.none"), null));
@@ -76,6 +75,7 @@ public final class FolderPickerScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.centeredText(font, Component.literal(serverName), width / 2, 22, -6250336);
+        graphics.centeredText(font, title, width / 2, 10, -1);
+        graphics.centeredText(font, Component.literal(serverName), width / 2, 24, -6250336);
     }
 }

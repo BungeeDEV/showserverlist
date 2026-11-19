@@ -15,5 +15,5 @@
   "showserverlist.folder.picker.none": "Kein Ordner",
   "showserverlist.folder.picker.new": "Neuer Ordner...",
   "showserverlist.folder.delete.title": "Diesen Ordner löschen?",
-  "showserverlist.folder.delete.message": "Die Server in \"%s\" werden nicht gelöscht. Sie wandern zurück in die Hauptliste."
+  "showserverlist.folder.delete.message": "\"%s\" wird entfernt. Die Server darin bleiben erhalten."
 }

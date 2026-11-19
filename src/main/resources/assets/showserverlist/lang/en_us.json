@@ -15,5 +15,5 @@
   "showserverlist.folder.picker.none": "No folder",
   "showserverlist.folder.picker.new": "New Folder...",
   "showserverlist.folder.delete.title": "Delete this folder?",
-  "showserverlist.folder.delete.message": "The servers in \"%s\" are not deleted. They move back to the main list."
+  "showserverlist.folder.delete.message": "\"%s\" will be removed. The servers inside are kept."
 }
