@@ -11,6 +11,7 @@
   "environment": "client",
   "entrypoints": {
   },
+  "accessWidener": "showserverlist.accesswidener",
   "mixins": [
     "showserverlist.mixins.json"
   ],
