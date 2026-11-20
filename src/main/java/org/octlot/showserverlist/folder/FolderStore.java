@@ -136,6 +136,19 @@ public final class FolderStore {
         return true;
     }
 
+    /** Moves a folder in front of {@code before}, or to the end when {@code before} is null. */
+    public boolean moveBefore(ServerFolder folder, @Nullable ServerFolder before) {
+        int from = folders.indexOf(folder);
+        if (from < 0) {
+            return false;
+        }
+        folders.remove(from);
+        int to = before == null ? -1 : folders.indexOf(before);
+        folders.add(to < 0 ? folders.size() : to, folder);
+        save();
+        return true;
+    }
+
     /** Puts a server into a folder, or back to the top level when {@code folder} is null. */
     public void assign(String serverIp, @Nullable ServerFolder folder) {
         if (folder == null) {

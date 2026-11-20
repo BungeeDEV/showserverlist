@@ -50,8 +50,9 @@ public final class FolderLayout {
 
         List<ServerSelectionList.Entry> arranged = new ArrayList<>();
         inFolder.forEach((folder, members) -> {
-            arranged.add(new FolderEntry(screen, list, folder, members.size()));
-            if (!folder.collapsed()) {
+            boolean collapsed = folder.collapsed() || DragController.isFolderDragActive();
+            arranged.add(new FolderEntry(screen, list, folder, members.size(), collapsed));
+            if (!collapsed) {
                 arranged.addAll(members);
             }
         });

@@ -3,3 +3,4 @@ accessible method net/minecraft/client/gui/screens/multiplayer/ServerSelectionLi
 accessible method net/minecraft/client/gui/components/AbstractSelectionList swap (II)V
 accessible method net/minecraft/client/gui/screens/Screen addRenderableWidget (Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;
 accessible field net/minecraft/client/gui/screens/multiplayer/JoinMultiplayerScreen serverSelectionList Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;
+accessible field net/minecraft/client/multiplayer/ServerList serverList Ljava/util/List;

@@ -2,11 +2,14 @@ package org.octlot.showserverlist.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import org.octlot.showserverlist.folder.DragController;
 import org.octlot.showserverlist.folder.FolderLayout;
 import org.octlot.showserverlist.folder.FolderStore;
 import org.spongepowered.asm.mixin.Final;
@@ -16,6 +19,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -40,6 +44,18 @@ public abstract class MixinOnlineServerEntry {
     @Unique
     private List<ServerSelectionList.OnlineServerEntry> showserverlist$group() {
         return FolderLayout.groupOf(this.screen.serverSelectionList, showserverlist$self());
+    }
+
+    /**
+     * A press on the text part of a row may turn into a drag. The icon on the left is left alone: vanilla uses it
+     * for the join and move up / down buttons.
+     */
+    @Inject(method = "mouseClicked", at = @At("HEAD"))
+    private void showserverlist$armDrag(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+        ServerSelectionList.OnlineServerEntry entry = showserverlist$self();
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.x() >= entry.getContentX() + 32) {
+            DragController.pressServer(this.screen, entry.getServerData(), event);
+        }
     }
 
     @WrapOperation(
