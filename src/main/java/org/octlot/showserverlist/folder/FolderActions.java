@@ -24,9 +24,9 @@ public final class FolderActions {
                 name -> store.isNameAvailable(name, null),
                 name -> {
                     store.create(name);
-                    open(screen);
+                    returnTo(screen);
                 },
-                () -> open(screen)
+                () -> returnTo(screen)
         ));
     }
 
@@ -38,9 +38,9 @@ public final class FolderActions {
                 name -> store.isNameAvailable(name, folder),
                 name -> {
                     store.rename(folder, name);
-                    open(screen);
+                    returnTo(screen);
                 },
-                () -> open(screen)
+                () -> returnTo(screen)
         ));
     }
 
@@ -50,7 +50,7 @@ public final class FolderActions {
                     if (confirmed) {
                         FolderStore.get().delete(folder);
                     }
-                    open(screen);
+                    returnTo(screen);
                 },
                 Component.translatable("showserverlist.folder.delete.title"),
                 Component.translatable("showserverlist.folder.delete.message", folder.name()),
@@ -67,7 +67,7 @@ public final class FolderActions {
                 store.folderOf(server.ip),
                 target -> {
                     store.assign(server.ip, target);
-                    open(screen);
+                    returnTo(screen);
                 },
                 () -> open(new FolderNameScreen(
                         Component.translatable("showserverlist.folder.name.new_title"),
@@ -75,13 +75,22 @@ public final class FolderActions {
                         name -> store.isNameAvailable(name, null),
                         name -> {
                             store.assign(server.ip, store.create(name));
-                            open(screen);
+                            returnTo(screen);
                         },
                         () -> open(picker[0])
                 )),
-                () -> open(screen)
+                () -> returnTo(screen)
         );
         open(picker[0]);
+    }
+
+    /**
+     * The multiplayer screen is not re-created when a dialog closes, so its list has to be rebuilt by hand
+     * (vanilla does the same before returning from the edit / add / delete dialogs).
+     */
+    private static void returnTo(JoinMultiplayerScreen screen) {
+        screen.serverSelectionList.refreshEntries();
+        open(screen);
     }
 
     private static void open(Screen screen) {

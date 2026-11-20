@@ -33,6 +33,8 @@ public class MixinJoinMultiplayerScreen {
     @Unique
     private Button directConnectionButton;
     @Unique
+    private SpriteIconButton newFolderButton;
+    @Unique
     private SpriteIconButton moveToFolderButton;
 
     @Redirect(
@@ -72,15 +74,13 @@ public class MixinJoinMultiplayerScreen {
     @Unique
     private void showserverlist$addFolderButtons() {
         JoinMultiplayerScreen screen = (JoinMultiplayerScreen) (Object) this;
-        int y = 6;
-        int x = screen.width - 28;
-        screen.addRenderableWidget(
+        this.newFolderButton = screen.addRenderableWidget(
                 SpriteIconButton.builder(
                         Component.translatable("showserverlist.folder.new"),
                         button -> FolderActions.createFolder(screen),
                         true
                 ).width(20).sprite(Identifier.fromNamespaceAndPath("showserverlist", "folder_add"), 16, 16).withTootip().build()
-        ).setPosition(x, y);
+        );
         this.moveToFolderButton = screen.addRenderableWidget(
                 SpriteIconButton.builder(
                         Component.translatable("showserverlist.folder.move"),
@@ -92,8 +92,26 @@ public class MixinJoinMultiplayerScreen {
                         true
                 ).width(20).sprite(Identifier.fromNamespaceAndPath("showserverlist", "folder_move"), 16, 16).withTootip().build()
         );
-        this.moveToFolderButton.setPosition(x - 24, y);
+        showserverlist$positionFolderButtons();
         showserverlist$updateFolderButtons();
+    }
+
+    /** The screen is kept (and only repositioned) when the window is resized or a dialog returns to it. */
+    @Inject(method = "repositionElements", at = @At("TAIL"))
+    public void showserverlist$onReposition(CallbackInfo ci){
+        showserverlist$positionFolderButtons();
+    }
+
+    @Unique
+    private void showserverlist$positionFolderButtons() {
+        if (this.newFolderButton == null || this.moveToFolderButton == null) {
+            return;
+        }
+        JoinMultiplayerScreen screen = (JoinMultiplayerScreen) (Object) this;
+        int y = 6;
+        int x = screen.width - 28;
+        this.newFolderButton.setPosition(x, y);
+        this.moveToFolderButton.setPosition(x - 24, y);
     }
 
     @Unique
