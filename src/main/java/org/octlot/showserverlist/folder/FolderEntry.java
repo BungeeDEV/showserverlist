@@ -99,9 +99,6 @@ public final class FolderEntry extends ServerSelectionList.Entry {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() != 0) {
-            return super.mouseClicked(event, doubleClick);
-        }
         int mouseX = (int) event.x();
         int mouseY = (int) event.y();
         if (isOverAction(mouseX, mouseY, renameX())) {
