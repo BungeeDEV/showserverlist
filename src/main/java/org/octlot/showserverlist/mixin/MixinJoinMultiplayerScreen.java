@@ -3,11 +3,12 @@ package org.octlot.showserverlist.mixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.octlot.showserverlist.ServerListMemory;
@@ -19,7 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(JoinMultiplayerScreen.class)
@@ -31,44 +31,41 @@ public class MixinJoinMultiplayerScreen {
     @Shadow
     private ServerData editingServer;
     @Unique
-    private Button directConnectionButton;
-    @Unique
     private SpriteIconButton newFolderButton;
     @Unique
     private SpriteIconButton moveToFolderButton;
 
-    @Redirect(
-            method = "init",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;",
-                    ordinal = 3
-            )
-    )
-    public LayoutElement showserverlist$redirectCreateDirectConnectButton(LinearLayout instance, LayoutElement child) {
-        if (isInWorld()) {
-            this.directConnectionButton = (Button) child;
-        }
-        return instance.addChild(child);
-    }
     @Unique
     private boolean isInWorld() {
         return Minecraft.getInstance().player != null && Minecraft.getInstance().level != null;
     }
+
+    /**
+     * Joining from a screen opened inside a world leaves that world, like the disconnect button of the pause menu
+     * does (including the question about a draft report). If the connection fails the player lands in a server
+     * list in front of the title screen: the pause menu this list was opened from no longer has a world.
+     */
     @Inject(method = "join", at = @At("HEAD"), cancellable = true)
-    public void showserverlist$cancelJoin(ServerData data, CallbackInfo ci){
-        if (isInWorld()) {
-            ci.cancel();
+    public void showserverlist$joinFromWorld(ServerData data, CallbackInfo ci){
+        if (!isInWorld()) {
+            return;
         }
+        ci.cancel();
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.getReportingContext().draftReportHandled(
+                minecraft,
+                (JoinMultiplayerScreen) (Object) this,
+                () -> ConnectScreen.startConnecting(
+                        new JoinMultiplayerScreen(new TitleScreen()), minecraft, ServerAddress.parseString(data.ip), data, false, null
+                ),
+                true
+        );
     }
+
     @Inject(method = "init", at = @At("TAIL"))
     public void showserverlist$onInit(CallbackInfo ci){
         ServerListMemory.restore(this.serverSelectionList);
         showserverlist$addFolderButtons();
-        if (isInWorld()) {
-            this.joinButton.active = false;
-            this.directConnectionButton.active = false;
-        }
     }
 
     @Unique
@@ -138,10 +135,6 @@ public class MixinJoinMultiplayerScreen {
         showserverlist$updateFolderButtons();
         if (this.serverSelectionList.getSelected() instanceof FolderEntry) {
             this.joinButton.active = false;
-        }
-        if (isInWorld()) {
-            this.joinButton.active = false;
-            this.directConnectionButton.active = false;
         }
     }
 }
